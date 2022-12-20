@@ -6,14 +6,9 @@ import throttle from "npm:lodash-es@4.17.21/throttle.js";
 import TelegramBot from "npm:node-telegram-bot-api@0.60.0";
 
 const BOT_TOKEN = Deno.env.get("BOT_TOKEN");
-const SESSION_TOKEN = Deno.env.get("SESSION_TOKEN");
-const CF_CLEARANCE = Deno.env.get("CF_CLEARANCE");
-const ACCESS_TOKEN = Deno.env.get("ACCESS_TOKEN");
 
-if (!BOT_TOKEN || !SESSION_TOKEN || !CF_CLEARANCE || !ACCESS_TOKEN) {
-  logWithTime(
-    "⛔️ BOT_TOKEN and SESSION_TOKEN and CF_CLEARANCE and ACCESS_TOKEN must be set in .env file"
-  );
+if (!BOT_TOKEN) {
+  logWithTime("⛔️ BOT_TOKEN must be set");
   Deno.exit(1);
 }
 
