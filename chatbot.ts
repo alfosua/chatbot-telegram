@@ -1,4 +1,4 @@
-import "https://deno.land/x/dotenv@v3.2.0/load.ts";
+import "https://deno.land/std@0.170.0/dotenv/load.ts";
 
 import throttle from "https://esm.sh/lodash-es@4.17.21/throttle";
 import { ChatGPTAPI, ChatGPTConversation } from "https://esm.sh/chatgpt@2.0.4";
