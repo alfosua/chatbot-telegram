@@ -1,0 +1,31 @@
+{
+  "name": "chatgpt_bot",
+  "version": "1.0.0",
+  "description": "<h1 align=\"center\">🤖️ chatbot-telegram</h1> <p  align=\"center\">   <img alt=\"Version 1.0.0\" src=\"https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000\" />   <a href=\"#\" target=\"_blank\">     <img alt=\"License: MIT\" src=\"https://img.shields.io/badge/License-MIT-green.svg\" />   </a>   <a href=\"https://twitter.com/ciyou_lee\" target=\"_blank\">     <img alt=\"Twitter: Ciyou\" src=\"https://img.shields.io/twitter/follow/ciyou_lee.svg?style=social\" />   </a> </p>",
+  "main": "chatbot.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsx chatbot.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alfosua/chatbot-telegram.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alfosua/chatbot-telegram/issues"
+  },
+  "homepage": "https://github.com/alfosua/chatbot-telegram#readme",
+  "dependencies": {
+    "chatgpt": "^3.3.1",
+    "dotenv": "^16.0.3",
+    "grammy": "^1.12.0",
+    "lodash": "^4.17.21",
+    "tsx": "^3.12.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.191"
+  }
+}
