@@ -1,5 +1,5 @@
 {
   "tasks": {
-    "run": "deno run --allow-net --allow-env --allow-read chatbot.ts"
+    "run": "deno run --allow-net --allow-env --allow-read --allow-write --allow-run chatbot.ts"
   }
 }

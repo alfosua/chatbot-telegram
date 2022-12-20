@@ -1,14 +1,19 @@
 import "https://deno.land/std@0.170.0/dotenv/load.ts";
 
-import throttle from "https://esm.sh/lodash-es@4.17.21/throttle";
-import { ChatGPTAPI, ChatGPTConversation } from "https://esm.sh/chatgpt@2.0.4";
-import TelegramBot from "https://esm.sh/node-telegram-bot-api@0.60.0";
+import { ChatGPTAPIBrowser, ChatResponse } from "npm:chatgpt@3.3.1";
+import throttle from "npm:lodash-es@4.17.21/throttle.js";
+// @deno-types="npm:@types/node-telegram-bot-api@^0.57.6"
+import TelegramBot from "npm:node-telegram-bot-api@0.60.0";
 
 const BOT_TOKEN = Deno.env.get("BOT_TOKEN");
 const SESSION_TOKEN = Deno.env.get("SESSION_TOKEN");
+const CF_CLEARANCE = Deno.env.get("CF_CLEARANCE");
+const ACCESS_TOKEN = Deno.env.get("ACCESS_TOKEN");
 
-if (!BOT_TOKEN || !SESSION_TOKEN) {
-  logWithTime("⛔️ BOT_TOKEN and SESSION_TOKEN must be set");
+if (!BOT_TOKEN || !SESSION_TOKEN || !CF_CLEARANCE || !ACCESS_TOKEN) {
+  logWithTime(
+    "⛔️ BOT_TOKEN and SESSION_TOKEN and CF_CLEARANCE and ACCESS_TOKEN must be set in .env file"
+  );
   Deno.exit(1);
 }
 
@@ -27,18 +32,21 @@ if (!botName) {
 
 // Start ChatGPT API
 
-let chatGPTAPI: ChatGPTAPI;
+let chatGPTAPI: ChatGPTAPIBrowser;
 try {
-  chatGPTAPI = new ChatGPTAPI({ sessionToken: SESSION_TOKEN });
-  await chatGPTAPI.ensureAuth();
-  await chatGPTAPI.refreshAccessToken();
+  chatGPTAPI = new ChatGPTAPIBrowser({
+    email: Deno.env.get("OPENAI_EMAIL")!,
+    password: Deno.env.get("OPENAI_PASSWORD")!,
+    isGoogleLogin: true,
+  });
+  await chatGPTAPI.initSession();
+  console.log(`Authenticated: ${await chatGPTAPI.getIsAuthenticated()}`);
 } catch (err) {
   logWithTime("⛔️ ChatGPT API error:", err.message);
   Deno.exit(1);
 }
 logWithTime("🔮 ChatGPT API has started...");
 
-let conversation: ChatGPTConversation = chatGPTAPI.getConversation();
 logWithTime("🔄 ChatGPT Conversation initialized");
 
 // Handle messages
@@ -49,7 +57,7 @@ bot.on("message", async (msg) => {
 function handleCommand(msg: TelegramBot.Message): boolean {
   // reload command
   if (msg.text === "/reload") {
-    conversation = chatGPTAPI.getConversation();
+    lastResponse = undefined;
     bot.sendMessage(msg.chat.id, "🔄 Conversation has been reset, enjoy!");
     logWithTime("🔄 Conversation has been reset, new conversation id");
     return true;
@@ -64,6 +72,8 @@ function handleCommand(msg: TelegramBot.Message): boolean {
   }
   return false;
 }
+
+let lastResponse: ChatResponse | undefined;
 
 // Parse message and send to ChatGPT if needed
 async function handleMessage(msg: TelegramBot.Message) {
@@ -86,7 +96,7 @@ async function handleMessage(msg: TelegramBot.Message) {
   }
 
   // Handle commands if needed
-  if (handleCommand(msg)) {
+  if (await handleCommand(msg)) {
     return;
   }
 
@@ -100,7 +110,9 @@ async function handleMessage(msg: TelegramBot.Message) {
 
   // Send message to ChatGPT
   try {
-    const response = await conversation.sendMessage(message, {
+    lastResponse = await chatGPTAPI.sendMessage(message, {
+      conversationId: lastResponse?.conversationId,
+      parentMessageId: lastResponse?.messageId,
       onProgress: throttle(
         async (partialResponse: string) => {
           respMsg = await editMessage(respMsg, partialResponse);
@@ -110,8 +122,8 @@ async function handleMessage(msg: TelegramBot.Message) {
         { leading: true, trailing: false }
       ),
     });
-    editMessage(respMsg, response);
-    logWithTime("📨 Response:", response);
+    editMessage(respMsg, lastResponse.response);
+    logWithTime("📨 Response:", lastResponse);
   } catch (err) {
     logWithTime("⛔️ ChatGPT API error:", err.message);
     // If the error contains session token has expired, then get a new session token
