@@ -1,6 +1,9 @@
 import "dotenv/config";
 
-import { ChatGPTAPIBrowser, ChatResponse } from "chatgpt";
+import {
+  ChatGPTAPIBrowser,
+  ChatResponse,
+} from "./third-party/chatgpt/build/index.js";
 import throttle from "lodash/throttle.js";
 import { Bot, Context, session, SessionFlavor } from "grammy";
 import type { Message } from "grammy/out/types";
@@ -129,7 +132,7 @@ filtered
       editMessage(respMsg, lastResponse.response);
       logWithTime("📨 Response:", lastResponse);
     } catch (err) {
-      logWithTime("⛔️ ChatGPT API error:", err.message);
+      logWithTime("⛔️ ChatGPT API error:", err);
       // If the error contains session token has expired, then get a new session token
       if (err.message.includes("session token may have expired")) {
         ctx.reply("🔑 Token has expired, please update the token.");
